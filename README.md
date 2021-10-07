@@ -6,8 +6,10 @@ Simples aplicação em VueApp
     Vuejs 3.x
     Bootstrap 5.x
     Axios (Para futuras implementações)
+
 ##Demo
 >Aplicação publicada na AWS http://iwt-vueapp.meajudatintin.cf/iwt-amazing-vueapp/
+
 ##Screenshots
 ![Screenshot 001](./docs/Screenshot_1.png)
 ![Screenshot 002](./docs/Screenshot_2.png)
