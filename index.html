@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Iwt - Amazing VueJs App</title>
+    <link rel="shortcut icon" href="favicon.ico" />
+    <link rel="stylesheet" href="assets/bootstrap.min.css" />
+    <link rel="stylesheet" href="assets/animate.min.css" />
+    <link rel="stylesheet" href="assets/app.css" />
+</head>
+<body>
+<nav class="navbar navbar-dark app-navbar-color">
+    <div class="container">
+        <a class="navbar-brand" href="#">
+            <img src="assets/img/app-icon.png" alt="" width="30">
+            Amazing VueApp
+        </a>
+    </div>
+</nav>
+
+<div class="container mb-3" id="app">
+    <div class="alert alert-warning alert-dismissible fade show mt-3" role="alert" v-if="hasWarning">
+        <strong>AVISO</strong> {{ warningMessage }}
+        <button v-on:click="hasWarning = false" type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    <div class="row mt-3">
+        <div class="col-sm-12 col-md-3 col-lg-3">
+            <div class="mb-3">
+                <input v-model="card.title" type="text" class="form-control" placeholder="Nome do card" aria-label="Nome do card" aria-describedby="button-addon2">
+            </div>
+            <div class="mb-3">
+                <label for="cardContent" class="form-label">Conteúdo do card</label>
+                <textarea v-model="card.content" class="form-control" id="cardContent" rows="3"></textarea>
+            </div>
+            <button v-on:click="createNewCard" class="btn btn-success w-100" type="button" id="button-addon2">Criar</button>
+        </div>
+        <div class="col-sm-12 col-md-9 col-lg-9">
+            <div class="alert alert-primary w-100" role="alert" v-if="cards.length === 0">
+                Você não tem nenhum card, crie um agora mesmo :)
+            </div>
+            <div class="row">
+                <div class="col-sm-12 col-md-4 col-lg-4 mb-2" v-for="card in cards">
+                    <div class="card">
+                        <div class="card-header app-card-header">
+                            <div class="row">
+                                <div class="col text-start pt-1">{{ card.title }}</div>
+                                <div class="col text-end">
+                                    <button v-on:click="confirmCardRemove(card)" type="button" class="btn btn-sm btn-warning"><img src="assets/img/trash.png" width="18" /> </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body app-card-body">
+                            <p class="card-text">{{ card.content }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="staticBackdropLabel">AVISO</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    Confirma a remoção do Card <b>{{ selectedCard.title }}</b>
+                    <br />
+                    <div class="text-end"><span class="span-card-id">Id do card: {{ selectedCard.id }}</span></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-danger" v-on:click="removeCardFromList(selectedCard)">CONFIRMO</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<footer class="app-footer text-center mb-3">
+    <span class="badge bg-primary">@tiagoiwamoto</span>
+    <span class="badge bg-secondary">Developer since 2000</span>
+    <hr />
+    <span>Confira meu github para mais exemplos com tecnologias diversas</span>
+</footer>
+<script src="assets/bootstrap.bundle.min.js"></script>
+<script src="assets/vue.global.js"></script>
+<script src="assets/axios.min.js"></script>
+<script>
+    const app = {
+        data() {
+            return {
+                cardNameStorage: 'cards-temp',
+                hasWarning: false,
+                warningMessage: '',
+                removeModalOpen: false,
+                cards: [],
+                card: {
+                    id: 0,
+                    title: '',
+                    content: ''
+                },
+                selectedCard: {}
+            };
+        },
+        mounted: function (){
+            const cardsFromStorage = localStorage.getItem(this.cardNameStorage)
+            if(cardsFromStorage !== null){
+                this.cards = JSON.parse(cardsFromStorage)
+            }
+        },
+        methods: {
+            createNewCard(){
+                if(this.card.title.length < 3){
+                    this.hasWarning = true
+                    this.warningMessage = 'O título do seu card precisa ser maior que 3 caracteres'
+                    return;
+                }else if(this.card.content.length < 3){
+                    this.hasWarning = true
+                    this.warningMessage = 'O conteúdo do seu card precisa ser maior que 3 caracteres'
+                    return;
+                }
+                this.hasWarning = false
+                this.warningMessage = ''
+                const tDate = new Date();
+                this.card.id = tDate.getTime()
+                this.cards.push(this.card)
+                this.saveOrUpdateCards()
+                this.card = {id: 0, title: '', content: ''}
+            },
+            confirmCardRemove(card){
+                console.log(card)
+                this.selectedCard = card
+                this.toggleRemoveCardModal()
+            },
+            removeCardFromList(card){
+                const cardIndex = this.cards.findIndex(eachCard => eachCard.id === card.id);
+                this.cards.splice(cardIndex, 1)
+                this.saveOrUpdateCards()
+                this.toggleRemoveCardModal()
+            },
+            saveOrUpdateCards(){
+                localStorage.setItem(this.cardNameStorage, JSON.stringify(this.cards))
+            },
+            toggleRemoveCardModal(){
+                const myModalEl = document.querySelector('#staticBackdrop')
+                const modal = bootstrap.Modal.getOrCreateInstance(myModalEl)
+                modal.toggle()
+            }
+        }
+    };
+
+    Vue.createApp(app).mount('#app')
+</script>
+</body>
+</html>

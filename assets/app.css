@@ -1,0 +1,32 @@
+.app-footer {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+}
+
+body{
+    background-color: #ffffff;
+    background-image: url("../assets/img/dark-wood.png");
+}
+
+.span-card-id{
+    font-size: small;
+    color: lightgray;
+}
+
+.app-navbar-color{
+    background-color: #ff6a34;
+    opacity: 0.6;
+}
+
+.app-card-header{
+    background-color: #ff6a34;
+    opacity: 0.9;
+    color: white;
+}
+
+.app-card-body{
+    background-color: whitesmoke;
+    opacity: 0.7;
+    color: black;
+}
